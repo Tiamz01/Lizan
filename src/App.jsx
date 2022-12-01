@@ -9,7 +9,7 @@ import {
 	Discover,
 	Search,
 	SongDetails,
-	TopCharts,
+	TopCharts
 } from "./pages";
 
 const App = () => {
