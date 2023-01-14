@@ -33,11 +33,8 @@ const Sidebar = () => {
 	return (
 		<>
 			<div className='md:flex hidden flex-col w-[240px]py-10 px-4 bg-[#191624]'>
-				<img
-					src={logo}
-					alt='logo'
-					className='w-full h-10 object-contain mt-4'
-				/>
+				<h3>Lizan</h3>
+
 				<NavLinks />
 			</div>
 			<div className='absolute md:hidden block top-6 right-3'>
@@ -54,11 +51,7 @@ const Sidebar = () => {
 				)}
 			</div>
 
-			<div
-				className={`absolute top-0 h-screen w-2/3 bg-gradient-to-tl from-whitr/10 to-[#483d8b] backdrop-blur-lg z-10 p-6 md:hidden smooth-transititon ${
-					mobileMenuDisplay ? "left-0" : "-left-full"
-				}`}
-			>
+			<div className={`absolute top-0 h-screen w-2/3 bg-gradient-to-tl from-whitr/10 to-[#483d8b] backdrop-blur-lg z-10 p-6 md:hidden smooth-transititon ${mobileMenuDisplay ? "left-0" : "-left-full"}`}>
 				<img
 					src={logo}
 					alt='logo'

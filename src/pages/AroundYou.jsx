@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { Error, Loader, SongCard } from "../components";
-import { useGetSongByCountryCodeQuery } from "../redux/services/ShazamCore";
+import { useGetSongByCountryQuery } from "../redux/services/ShazamCore";
 
 const CountryTracks = () => {
 	const [country, setCountry] = useState("");
@@ -11,13 +11,12 @@ const CountryTracks = () => {
 		return state.player;
 	});
 
-	const [data, isFetching, error] = useGetSongByCountryCodeQuery(country);
+	console.log(country);
+	const { data, isFetching, error } = useGetSongByCountryQuery(country);
 
 	useEffect(() => {
 		axios
-			.get(
-				`https://geo.ipify.org/api/v2/country?apiKey=at_d4IV2PWWitWZZr3Z8HZY41lwTNv35`
-			)
+			.get(`https://geo.ipify.org/api/v2/country?apiKey=at_d4IV2PWWitWZZr3Z8HZY41lwTNv35`)
 			.then((res) => setCountry(res?.data?.location?.country))
 			.catch((err) => console.log(err))
 			.finally(() => setLoading(false));
@@ -25,15 +24,13 @@ const CountryTracks = () => {
 
 	if (isFetching && loading) return <Loader title='Loading song round you' />;
 
-	if (error && country)
-		return <Error title="Ooops, i can't find any song around you" />;
+	if (error && country) return <Error title="Ooops, i can't find any song around you" />;
 
 	return (
 		<div>
 			<h2 className='font-bold text-3xl text-white text-left mt-4 mb-10 '>
-				Around you <span className='font-black'>{country}</span>{" "}
+				Around you <span className='font-black'>{country}</span> //{" "}
 			</h2>
-
 			{data?.map((song, i) => (
 				<SongCard
 					key={song.key}
