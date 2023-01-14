@@ -5,18 +5,13 @@ import { useGetArtistDetailsQuery } from "../redux/services/ShazamCore";
 
 const ArtistDetails = () => {
 	const { id: artistId } = useParams();
-	console.log("this is songid:", songid);
+
 	const { activeSong, isPlaying } = useSelector((state) => {
 		return state.player;
 	});
-	const {
-		data: artistData,
-		isFetching: isFetchingArtistDetails,
-		error
-	} = useGetArtistDetailsQuery({ artistId });
+	const { data: artistData, isFetching: isFetchingArtistDetails, error } = useGetArtistDetailsQuery({ artistId });
 
-	if (isFetchingArtistDetails)
-		return <Loader title={"searching aritis details"} />;
+	if (isFetchingArtistDetails) return <Loader title={"searching aritis details"} />;
 
 	if (error) return <Error />;
 

@@ -31,16 +31,18 @@ const CountryTracks = () => {
 			<h2 className='font-bold text-3xl text-white text-left mt-4 mb-10 '>
 				Around you <span className='font-black'>{country}</span> //{" "}
 			</h2>
-			{data?.map((song, i) => (
-				<SongCard
-					key={song.key}
-					data={data}
-					isPlaying={isPlaying}
-					activeSong={activeSong}
-					song={song}
-					i={i}
-				/>
-			))}
+			<div className='flex flex-wrap sm:justify-start justify-center gap-8'>
+				{data?.map((song, i) => (
+					<SongCard
+						key={song.key}
+						data={data}
+						isPlaying={isPlaying}
+						activeSong={activeSong}
+						song={song}
+						i={i}
+					/>
+				))}
+			</div>
 		</div>
 	);
 };
