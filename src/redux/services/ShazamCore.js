@@ -1,49 +1,70 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const options = {
-	method: "GET",
-	headers: {
-		"X-RapidAPI-Key": "4b1515da5dmsh10d4459b56e1690p1e6a5ejsn42c432e23603",
-		"X-RapidAPI-Host": "shazam-core.p.rapidapi.com"
-	}
-};
-
-fetch("https://shazam-core.p.rapidapi.com/v1/charts/world", options)
-	.then((response) => response.json())
-	.then((response) => console.log(response))
-	.catch((err) => console.log(err));
-
+// Using Deezer API with proxy to bypass CORS restrictions
 export const shazamCoreApi = createApi({
 	reducerPath: "shazamCoreApi",
 	baseQuery: fetchBaseQuery({
-		baseUrl: "https://shazam-core.p.rapidapi.com/v1",
+		baseUrl: "/api",
 		prepareHeaders: (headers) => {
-			headers.set("X-RapidAPI-Key", "4b1515da5dmsh10d4459b56e1690p1e6a5ejsn42c432e23603");
-
 			return headers;
 		}
 	}),
 	endpoints: (builder) => ({
-		getTopCharts: builder.query({ query: () => "/charts/world" }),
+		getTopCharts: builder.query({ 
+			query: () => "/chart/0/tracks?limit=20"
+		}),
 		getSongsByGenre: builder.query({
-			query: (genre) => `/charts/genre-world?genre_code=${genre}`
+			query: (genre) => {
+				// Map genre codes to Deezer genre IDs based on actual API response
+				const genreMap = {
+					POP: 132,           // Pop
+					HIP_HOP_RAP: 116,   // Rap/Hip Hop
+					DANCE: 113,         // Dance
+					ELECTRONIC: 106,    // Electro
+					SOUL_RNB: 165,      // R&B
+					ALTERNATIVE: 85,    // Alternative
+					ROCK: 152,          // Rock
+					LATIN: 197,         // Latin Music
+					FILM_TV: 173,       // Films/Games
+					COUNTRY: 0,         // Using "All" genre as fallback
+					WORLDWIDE: 0,       // Using "All" genre
+					REGGAE_DANCE_HALL: 144, // Reggae
+					HOUSE: 106,         // Same as ELECTRONIC
+					K_POP: 0            // Using "All" genre as fallback
+				};
+				const genreId = genreMap[genre] || 0; // Default to "All" genre (0)
+				
+				// For now, we'll use the chart endpoint which provides variety
+				// In a more advanced implementation, we could fetch artists by genre
+				// and then their top tracks, but that would require multiple API calls
+				return `/chart/0/tracks?limit=20`;
+			}
 		}),
 		getSongDetails: builder.query({
-			query: ({ songid }) => `/tracks/details/?track_id=${songid} `
+			query: ({ songid }) => `/track/${songid}`
 		}),
 		getSongRelated: builder.query({
-			query: ({ songid }) => `/tracks/related/?track_id=${songid} `
+			query: ({ songid }) => `/track/${songid}/related?limit=10`
 		}),
 		getArtistDetails: builder.query({
-			query: (artistId) => `/tracks/related/?track_id=${artistId} `
+			query: (artistId) => `/artist/${artistId}`
 		}),
 		getSongByCountry: builder.query({
-			query: (countryCode) => `/charts/country?country_code=${countryCode} `
+			// Deezer doesn't have direct country charts, using top tracks
+			query: () => "/chart/0/tracks?limit=20"
 		}),
 		getSongbySearch: builder.query({
-			query: (searchTerm) => `/search/multi?search_type=SONGS_ARTISTS&query=${searchTerm}`
+			query: (searchTerm) => `/search?q=${searchTerm}&limit=20`
 		})
 	})
 });
 
-export const { useGetTopChartsQuery, useGetSongsByGenreQuery, useGetSongDetailsQuery, useGetSongRelatedQuery, useGetArtistDetailsQuery, useGetSongByCountryQuery, useGetSongbySearchQuery } = shazamCoreApi;
+export const { 
+	useGetTopChartsQuery, 
+	useGetSongsByGenreQuery, 
+	useGetSongDetailsQuery, 
+	useGetSongRelatedQuery, 
+	useGetArtistDetailsQuery, 
+	useGetSongByCountryQuery, 
+	useGetSongbySearchQuery 
+} = shazamCoreApi;

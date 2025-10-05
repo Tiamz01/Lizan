@@ -20,9 +20,12 @@ const Player = ({ activeSong, isPlaying, volume, seekTime, onEnded, onTimeUpdate
     ref.current.currentTime = seekTime;
   }, [seekTime]);
 
+  // Use the preview URL from Deezer API, fallback to hub actions for other APIs
+  const audioSource = activeSong?.preview || activeSong?.hub?.actions[1]?.uri;
+
   return (
     <audio
-      src={activeSong?.hub?.actions[1]?.uri}
+      src={audioSource}
       ref={ref}
       loop={repeat}
       onEnded={onEnded}

@@ -3,7 +3,7 @@ import { loader } from "../assets";
 const Loader = ({ title }) => (
 	<div className='w-full flex justify-center items-center flex-col'>
 		<img
-			className='w-[32px] h-[32px] object-contain'
+			className='w-[32px] h-[32px] object-contain animate-spin'
 			src={loader}
 			alt='loader'
 		/>

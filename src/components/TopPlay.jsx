@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { FreeMode } from "swiper";
+import { FreeMode } from "swiper/modules";
 import PlayPause from "../components/PlayPause";
 import { playPause, setActiveSong } from "../redux/features/playerSlice";
 import { useGetTopChartsQuery } from "../redux/services/ShazamCore";
@@ -47,7 +47,7 @@ const TopChartCard = ({
 	);
 };
 
-const TopPlay = (song, i, handlePauseClick, handlePlayClick) => {
+const TopPlay = () => {
 	const dispatch = useDispatch();
 	const { activeSong, isPlaying } = useSelector((state) => {
 		return state.player;
@@ -56,7 +56,9 @@ const TopPlay = (song, i, handlePauseClick, handlePlayClick) => {
 	const { data } = useGetTopChartsQuery();
 	const divRef = useRef(null);
 
-	const topPlays = data?.slice(0, 5);
+	// Transform Deezer API response to match expected format and ensure it's an array
+	const transformedData = data?.data || data?.tracks?.data || data || [];
+	const topPlays = Array.isArray(transformedData) ? transformedData.slice(0, 5) : [];
 
 	useEffect(() => {
 		divRef.current.scrollIntoView({ behavior: "smooth" });
@@ -66,7 +68,7 @@ const TopPlay = (song, i, handlePauseClick, handlePlayClick) => {
 		dispatch(playPause(false));
 	}
 	function handlePlayClick(song, i) {
-		dispatch(setActiveSong({ song, data, i }));
+		dispatch(setActiveSong({ song, data: transformedData, i }));
 		dispatch(playPause(true));
 	}
 
@@ -84,11 +86,26 @@ const TopPlay = (song, i, handlePauseClick, handlePlayClick) => {
 				</div>
 
 				<div className='flex flex-col gap-1 mt-4'>
-					{topPlays?.map((song, i) => {
+					{topPlays.map((song, i) => {
+						// Transform song data to match expected format
+						const transformedSong = {
+							...song,
+							key: song.id,
+							title: song.title || song.name || "Unknown Title",
+							subtitle: song.artist?.name || song.artist?.title || "Unknown Artist",
+							images: {
+								coverart: song.album?.cover_medium || song.album?.cover || song.album?.image || song.artist?.picture_medium || song.artist?.image || "https://via.placeholder.com/250",
+								background: song.artist?.picture_big || song.artist?.picture_xl || song.album?.cover_big || song.album?.cover_xl || "https://via.placeholder.com/500"
+							},
+							// Include the preview URL for audio playback
+							preview: song.preview,
+							artists: song.artist ? [{ adamid: song.artist.id }] : []
+						};
+						
 						return (
 							<TopChartCard
-								song={song}
-								key={song.key}
+								song={transformedSong}
+								key={song.id || i}
 								i={i}
 								isPlaying={isPlaying}
 								activeSong={activeSong}
@@ -102,7 +119,7 @@ const TopPlay = (song, i, handlePauseClick, handlePlayClick) => {
 			<div className='w-full flex flex-col mt-8'>
 				<div className='flex flex-row justify-between items-center mt-5'>
 					<h2 className='text-white font-bold text-2xl'>Top Artists</h2>
-					<Link to='/top-charts'>
+					<Link to='/top-artists'>
 						<p className='text-gray-300 text-base cursor-pointer'>see more</p>
 					</Link>
 				</div>
@@ -115,21 +132,38 @@ const TopPlay = (song, i, handlePauseClick, handlePlayClick) => {
 					modules={[FreeMode]}
 					className='mt-4'
 				>
-					{topPlays?.map((song, i) => (
-						<SwiperSlide
-							key={song?.key}
-							style={{ width: "25%", height: "auto" }}
-							className='shadow-lg rounded-full animate-slideright'
-						>
-							<Link to={`/artists/${song?.artists[0].adamid}`}>
-								<img
-									src={song?.images.background}
-									alt='name'
-									className='w-full object-cover rounded-full'
-								/>
-							</Link>
-						</SwiperSlide>
-					))}
+					{topPlays.map((song, i) => {
+						// Transform song data to match expected format
+						const transformedSong = {
+							...song,
+							key: song.id,
+							title: song.title || song.name || "Unknown Title",
+							subtitle: song.artist?.name || song.artist?.title || "Unknown Artist",
+							images: {
+								coverart: song.album?.cover_medium || song.album?.cover || song.album?.image || song.artist?.picture_medium || song.artist?.image || "https://via.placeholder.com/250",
+								background: song.artist?.picture_big || song.artist?.picture_xl || song.album?.cover_big || song.album?.cover_xl || "https://via.placeholder.com/500"
+							},
+							// Include the preview URL for audio playback
+							preview: song.preview,
+							artists: song.artist ? [{ adamid: song.artist.id }] : []
+						};
+						
+						return (
+							<SwiperSlide
+								key={song.id || i}
+								style={{ width: "25%", height: "auto" }}
+								className='shadow-lg rounded-full animate-slideright'
+							>
+								<Link to={`/artists/${transformedSong?.artists[0]?.adamid}`}>
+									<img
+										src={transformedSong?.images?.background}
+										alt='name'
+										className='w-full object-cover rounded-full'
+									/>
+								</Link>
+							</SwiperSlide>
+						);
+					})}
 				</Swiper>
 			</div>
 		</div>

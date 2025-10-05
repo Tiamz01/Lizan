@@ -9,12 +9,14 @@ const Search = () => {
 		return state.player;
 	});
 
-	const [data, isFetching, error] = useGetSongbySearchQuery(searchTerm);
+	const { data, isFetching, error } = useGetSongbySearchQuery(searchTerm);
 
-	const songs = data?.tracks?.hits?.maps((song) => song.track);
-	if (isFetching && loading) return <Loader title='Loading top charts' />;
+	if (isFetching) return <Loader title='Searching songs...' />;
 
-	if (error && country) return <Error />;
+	if (error) return <Error />;
+
+	// Transform Deezer API response to match expected format
+	const transformedData = data?.data || data?.tracks?.data || data || [];
 
 	return (
 		<div>
@@ -23,16 +25,32 @@ const Search = () => {
 			</h2>
 
 			<div className='flex flex-wrap sm:justify-start justify-center gap-8'>
-				{songs?.map((song, i) => (
-					<SongCard
-						key={song.key}
-						data={data}
-						isPlaying={isPlaying}
-						activeSong={activeSong}
-						song={song}
-						i={i}
-					/>
-				))}
+				{Array.isArray(transformedData) && transformedData.map((song, i) => {
+					// Transform song data to match expected format
+					const transformedSong = {
+						...song,
+						key: song.id,
+						title: song.title || song.name || "Unknown Title",
+						subtitle: song.artist?.name || song.artist?.title || "Unknown Artist",
+						images: {
+							coverart: song.album?.cover_medium || song.album?.cover || song.album?.image || song.artist?.picture_medium || song.artist?.image || "https://via.placeholder.com/250"
+						},
+						// Include the preview URL for audio playback
+						preview: song.preview,
+						artists: song.artist ? [{ adamid: song.artist.id }] : []
+					};
+					
+					return (
+						<SongCard
+							key={song.id || i}
+							data={transformedData}
+							isPlaying={isPlaying}
+							activeSong={activeSong}
+							song={transformedSong}
+							i={i}
+						/>
+					);
+				})}
 			</div>
 		</div>
 	);
