@@ -1,6 +1,5 @@
 {
   "name": "lizan-music-app",
-  "private": true,
   "version": "1.0.0",
   "description": "A modern music streaming application built with React.js",
   "keywords": ["react", "music", "streaming", "deezer", "player"],
@@ -13,6 +12,7 @@
     "url": "https://github.com/Tiamz01/Lizan.git"
   },
   "license": "MIT",
+  "author": "Lizan Team",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
