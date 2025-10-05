@@ -6,6 +6,10 @@ export const shazamCoreApi = createApi({
 	baseQuery: fetchBaseQuery({
 		baseUrl: "/api",
 		prepareHeaders: (headers) => {
+			// Add headers to prevent caching issues
+			headers.set('Cache-Control', 'no-cache');
+			headers.set('Pragma', 'no-cache');
+			headers.set('Expires', '0');
 			return headers;
 		}
 	}),
